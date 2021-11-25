@@ -29,34 +29,22 @@ class PushwooshClient(PushwooshBaseClient):
         url = self.path(command)
         payload = command.render()
 
-        if self.debug:
-            log.debug('Client: %s' % self.__class__.__name__)
-            log.debug('Command: %s' % payload)
-            log.debug('Request URL: %s' % url)
-            log.debug('Request method: %s' % self.method)
-            log.debug('Request headers: %s' % self.headers)
-
         r = requests.post(url, data=payload, headers=self.headers, timeout=self.timeout)
 
         if r.status_code != 200:
             msg = u'PushWoosh error: %s %s' % (r.status_code, r.text)
-            log.error(msg)
-            log.error('Command: %s' % payload)
+            if self.debug:
+                log.debug(msg)
+                log.debug('Command: %s' % payload)
             raise Exception(msg)
 
         try:
             result = r.json()
         except:
             msg = u"PushWoosh JSON error: %s" % r.text
-            log.error(msg)
-            log.error('Command: %s' % payload)
+            if self.debug:
+                log.debug(msg)
+                log.debug('Command: %s' % payload)
             raise Exception(msg)
-
-        if self.debug:
-            log.debug('Response version: %s' % r.raw.version)
-            log.debug('Response code: %s' % r.status_code)
-            log.debug('Response phrase: %s' % r.reason)
-            log.debug('Response headers: %s' % r.headers)
-            log.debug('Response payload: %s' % r.json())
 
         return result
